@@ -13,18 +13,23 @@ end
 
 def get_townhall_urls(all_townhalls_url)
     nom_ville = Array.new
-    email_mairie = Array.new
+    email_mairies = Array.new
+    tableau_url_mairies = Array.new
+    email = ""
     
-    all_townhalls_url.xpath('//a[contains(@class, txtlink)]/@href').each do |url|
-        email_mairie << get_townhall_email("http://annuaire-des-mairies.com/#{url.to_s.delete_prefix(".")}")
+    tableau_url_mairies = all_townhalls_url.xpath('//a[contains(@class, txtlink)]/@href')
+    tableau_url_mairies = tableau_url_mairies.map do |url| 
+         url_mairie_instance = url.to_s.sub(".", "http://annuaire-des-mairies.com")
+         puts url_mairie_instance
     end
 
     all_townhalls_url.xpath('//a[contains(@class, txtlink)]').each do |ville|
         nom_ville << ville.text.strip
     end
 
-    puts nom_ville
-    puts email_mairie
+
+    puts email_mairies
 end
 
 get_townhall_urls(page)
+
