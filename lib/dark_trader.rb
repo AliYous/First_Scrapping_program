@@ -11,12 +11,12 @@ def scraping(page)
     price_scrap = Array.new
     symbol_scrap = Array.new
 
-    page.xpath('//a[contains(@class, "price")]').each do |node|
-        price_scrap << node.text.delete("$").to_f
+    page.xpath('//a[contains(@class, "price")]').each do |elem|
+        price_scrap << elem.text.delete("$").to_f
     end
 
-    page.xpath('//td[contains(@class, "text-left col-symbol")]').each do |node|
-        symbol_scrap << node.text
+    page.xpath('//td[contains(@class, "text-left col-symbol")]').each do |elem|
+        symbol_scrap << elem.text
     end
     
     symbol_value_pair = Hash[symbol_scrap.zip(price_scrap)]
