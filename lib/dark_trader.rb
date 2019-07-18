@@ -7,20 +7,6 @@ page = Nokogiri::HTML(open(PAGE_URL))
 
 
 def scraping(page)
-    # Scraping des symboles de cryptos
-    currencies_scrap = page.xpath('//td[contains(concat(" ",normalize-space(@class)," "), " col-symbol ")]')
-    currencies = currencies_scrap.map { |currency| currency.text.strip }
-    # Scraping des valeurs de cryptos 
-  
-    values = values_scrap.map { |value| value.text.delete("$").to_f }
-    # Regroupement des deux arrays en un hash
-    h = Hash[currencies.zip(values)]
-    # Segmentation du hash en plusieurs hashes au sein d'un array
-    result = [h.each {|k,v| Hash[k => v] }]
-  
-end
-
-def scraping(page)
 
     price_scrap = Array.new
     symbol_scrap = Array.new
