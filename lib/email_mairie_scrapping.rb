@@ -1,3 +1,4 @@
+#frozen_string_literal: true.
 #Initialize everything we need 
 require 'rubygems'
 require 'nokogiri'   
@@ -7,6 +8,14 @@ PAGE_URL = "http://annuaire-des-mairies.com/val-d-oise.html"
 page = Nokogiri::HTML(open(PAGE_URL)) 
 townhall_url = Nokogiri::HTML(open("https://annuaire-des-mairies.com/95/fremainville.html")) 
 
+
+#-----------------------------------------------------------------------------------------------------#
+
+# Toutes les méthodes fonctionnent indépendamment mais j'ai des erreurs au moment de les imbriquer ensembles. 
+# 'Xpath undefined for string' Le problème vient surement du fait que je cherche à appliquer .xpath sur un string, 
+# J'ai essayé beaucoup de choses et je n'ai pas trouvé la solution
+
+#-----------------------------------------------------------------------------------------------------#
 
 
 
@@ -26,49 +35,42 @@ end
 #Retourne un tableau (strings) contenant les url de chaque villes
 def get_city_urls(page)
     # ------- Initialisation Variable -------- 
-    tableau_url_incompletes_raw = Array.new #array qui contiendra Toutes les adresses
-    tableau_url_completes = Array.new
-    tableau_url_incompletes = Array.new
+    tableau_url_incompletes = []
     
     #---------Va chercher le lien vers chaque ville sous la forme .95/ville------
     tableau_url_incompletes_raw = page.xpath('//a[contains(@class, txtlink)]/@href')
 
-    #Supprime les href qui ne commencent pas par un "." (ne sont pas des url vers des mairies)
+    # Supprime les href qui ne commencent pas par un "." (ne sont pas des url vers des mairies)
     tableau_url_incompletes_raw.each do |url|
-        if url.to_s.start_with?(".") == true
-            tableau_url_incompletes << url
-        end
+      url_temp = url
+      if url_temp.to_s.start_with?(".") == true
+        tableau_url_incompletes << url
+      end
     end
 
     #-----Modifie les liens pour les transformer en URL accessible (enlève le point puis ajoute la première partie de l'url)----
-    tableau_url_completes = tableau_url_incompletes.map do |url| 
-        url.to_s.sub(".", "http://annuaire-des-mairies.com")
+    tableau_url_completes = tableau_url_incompletes.map do |url|
+      url.to_s.sub(".", "http://annuaire-des-mairies.com")
     end
 
     return tableau_url_completes
 end
 
 def get_city_name_all_townhalls(tableau_url_completes)
-    city_names  = Array.new
-
-    tableau_url_completes.each do |url|
-        city_names << get_city_name(url)
-    end
-
-    return city_names
+  city_names = []
+  tableau_url_completes.each do |url|
+    city_names << get_city_name(url)
+  end
+  return city_names
 end
 
 
-#Returns a hash of emails {(nom_ville => email)}
+# Returns a hash of emails {(nom_ville => email)}
 def get_emails_all_townhalls(tableau_url_completes)
-    email_townhalls = Array.new
-
-    tableau_url_completes.each do |url|
-        email_townhalls << get_townhall_email(url)
-    end
-
+  email_townhalls = []
+  tableau_url_completes.each do |url|
+    email_townhalls << get_townhall_email(url)
+  end
 end
 
-
-tab_urls = get_city_urls(page)
-puts get_city_name_all_townhalls(tab_urls)
+puts get_city_urls(page)
