@@ -2,34 +2,73 @@
 require 'rubygems'
 require 'nokogiri'   
 require 'open-uri'
+
 PAGE_URL = "http://annuaire-des-mairies.com/val-d-oise.html"
-page = Nokogiri::HTML(open(PAGE_URL))  
+page = Nokogiri::HTML(open(PAGE_URL)) 
+townhall_url = Nokogiri::HTML(open("https://annuaire-des-mairies.com/95/fremainville.html")) 
 
 
-#Prend en paramètre l'URL d'une mairie et retourne son adresse mail
+
+
+#Prend en paramètre l'URL d'une mairie et retourne son adresse mail en string
 def get_townhall_email(townhall_url)
-    return townhall_url.xpath('/html/body/div/main/section[2]/div/table/tbody/tr[4]/td[2]')
+    return townhall_url.xpath('/html/body/div/main/section[2]/div/table/tbody/tr[4]/td[2]').text
 end
 
-def get_townhall_urls(all_townhalls_url)
-    nom_ville = Array.new
-    email_mairies = Array.new
-    tableau_url_mairies = Array.new
-    email = ""
+#retourne le nom d'une ville en string
+def get_city_name(townhall_url)
+    city_name = townhall_url.xpath('/html/body/div/main/section[1]/div/div/div/h1').text
+    city_name = city_name.capitalize.split.take(1) #Pour capitaliser le nom et se débarasser du Code Post.
+    return city_name
+end
+
+
+#Retourne un tableau (strings) contenant les url de chaque villes
+def get_city_urls(page)
+    # ------- Initialisation Variable -------- 
+    tableau_url_incompletes_raw = Array.new #array qui contiendra Toutes les adresses
+    tableau_url_completes = Array.new
+    tableau_url_incompletes = Array.new
     
-    tableau_url_mairies = all_townhalls_url.xpath('//a[contains(@class, txtlink)]/@href')
-    tableau_url_mairies = tableau_url_mairies.map do |url| 
-         url_mairie_instance = url.to_s.sub(".", "http://annuaire-des-mairies.com")
-         puts url_mairie_instance
+    #---------Va chercher le lien vers chaque ville sous la forme .95/ville------
+    tableau_url_incompletes_raw = page.xpath('//a[contains(@class, txtlink)]/@href')
+
+    #Supprime les href qui ne commencent pas par un "." (ne sont pas des url vers des mairies)
+    tableau_url_incompletes_raw.each do |url|
+        if url.to_s.start_with?(".") == true
+            tableau_url_incompletes << url
+        end
     end
 
-    all_townhalls_url.xpath('//a[contains(@class, txtlink)]').each do |ville|
-        nom_ville << ville.text.strip
+    #-----Modifie les liens pour les transformer en URL accessible (enlève le point puis ajoute la première partie de l'url)----
+    tableau_url_completes = tableau_url_incompletes.map do |url| 
+        url.to_s.sub(".", "http://annuaire-des-mairies.com")
     end
 
-
-    puts email_mairies
+    return tableau_url_completes
 end
 
-get_townhall_urls(page)
+def get_city_name_all_townhalls(tableau_url_completes)
+    city_names  = Array.new
 
+    tableau_url_completes.each do |url|
+        city_names << get_city_name(url)
+    end
+
+    return city_names
+end
+
+
+#Returns a hash of emails {(nom_ville => email)}
+def get_emails_all_townhalls(tableau_url_completes)
+    email_townhalls = Array.new
+
+    tableau_url_completes.each do |url|
+        email_townhalls << get_townhall_email(url)
+    end
+
+end
+
+
+tab_urls = get_city_urls(page)
+puts get_city_name_all_townhalls(tab_urls)
