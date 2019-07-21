@@ -73,4 +73,5 @@ def get_emails_all_townhalls(tableau_url_completes)
   end
 end
 
+
 puts get_city_urls(page)
