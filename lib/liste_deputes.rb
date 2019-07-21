@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'watir'
 
-PAGE_URL = "https://www.voxpublic.org/spip.php?page=annuaire&cat=deputes&pagnum=50"
+PAGE_URL = "https://www.voxpublic.org/spip.php?page=annuaire&cat=deputes&pagnum=600"
 page = Nokogiri::HTML(open(PAGE_URL)) 
 
 
@@ -52,5 +52,11 @@ def get_depute_name_and_surname(email_array)
 	return surname_array.zip(name_array, email_array)
 end
 
-arr = get_depute_email(page)
-p get_depute_name_and_surname(arr)
+
+def perform(page)
+email_arr = get_depute_email(page)
+all_info_arr = get_depute_name_and_surname(email_arr)
+p all_info_arr
+end
+
+perform(page)
