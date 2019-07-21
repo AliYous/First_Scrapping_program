@@ -9,11 +9,12 @@ PAGE_URL = "https://www.voxpublic.org/spip.php?page=annuaire&cat=deputes&pagnum=
 page = Nokogiri::HTML(open(PAGE_URL)) 
 
 
+def get_name(name)
+	return name
+end
 
-def get_depute_name(page)
-    name_array = []
-    name_array << page.css("h2.titre_normal").text
-    p name_array
+def get_surname(surname)
+	return surname
 end
 
 def get_depute_email(page)
@@ -28,27 +29,28 @@ def get_depute_email(page)
 			email_array << elem['href'].to_s.sub("mailto:", "")
 		end
 	end
+	return email_array
+end
+
+def get_depute_name_and_surname(email_array)
+	name_array = []
+	surname_array = []
+	name_array_raw = []
 
 	#Parcours l'email array et récumère le nom et prénom (avant le @)
 	email_array.each do |email|
 		name_array_raw << email.sub("@assemblee-nationale.fr", "")
 	end
 
+	#Sépare le nom et prénom et stock dans deux arrays
 	name_array_raw.each do |elem|
 		name = elem.split(".")
 		surname_array << name[0]
 		name_array << name[1]
 	end
-	
 
-
-	puts name_array
-	
+	return surname_array.zip(name_array, email_array)
 end
 
-
-
-get_depute_email(page)
-
-
-#louis.aliot@assemblee-nationale.fr
+arr = get_depute_email(page)
+p get_depute_name_and_surname(arr)
